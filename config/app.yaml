@@ -1,0 +1,7 @@
+version: '1.0'
+port: 3000
+security:
+  secret: M1r34cl3
+  expire: 15m
+storage:
+  path: ./storage
