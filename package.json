@@ -1,7 +1,7 @@
 {
   "name": "radoti",
   "version": "1.0.0",
-  "description": "",
+  "description": "RadotiJS is an application built on NestJs for storing files as a central file storage on microservices architecture",
   "author": "PT. Indosistem Teknologi Utama",
   "private": true,
   "license": "BSD 3-Clause",
