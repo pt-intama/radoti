@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { parse } from 'path';
 import { from, map } from 'rxjs';
 import { PrismaService } from 'src/prisma.service';
