@@ -1,17 +1,17 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { map, mergeMap, Subject } from 'rxjs';
 import { PermissionService } from './permission/permission.service';
 
 @Injectable()
-export class AppService implements OnModuleInit {
+export class AppService implements OnApplicationBootstrap {
   private readonly logger: Logger = new Logger(AppService.name);
   private subjectShutdownListener: Subject<void> = new Subject();
 
   constructor(private permissionService: PermissionService) {}
 
-  onModuleInit() {
+  onApplicationBootstrap() {
     if (!existsSync(join(process.cwd(), 'keys', 'credentials'))) {
       this.permissionService
         .createPermissionKey(true)

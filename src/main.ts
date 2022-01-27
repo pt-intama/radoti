@@ -1,4 +1,4 @@
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as compression from 'compression';
@@ -8,6 +8,7 @@ import { ENV_PORT } from './common/constants';
 import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger: Logger = new Logger('ApplicationBootstrap');
 
   app.enableVersioning({
     type: VersioningType.URI,
@@ -28,6 +29,8 @@ async function bootstrap() {
 
   // listen in port 3000
   const port = app.get(ConfigService).get<string>(ENV_PORT);
-  await app.listen(port ? port : 3000);
+  await app.listen(port ? port : 3000, () =>
+    logger.log(`Running on port ${port}`),
+  );
 }
 bootstrap();
