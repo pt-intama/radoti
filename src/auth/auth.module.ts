@@ -3,7 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { readFileSync } from 'fs';
 import { join } from 'path/posix';
-import { ENV_SECURITY_EXPIRE, ENV_SECURITY_SECRET } from 'src/common/constants';
+import {
+  ENV_SECURITY_RSA_PASSPHRASE,
+  ENV_SECURITY_JWT_EXPIRE,
+  ENV_SECURITY_RSA_AUTH_PATH,
+} from 'src/common/constants';
 import { PermissionModule } from 'src/permission/permission.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -18,18 +22,17 @@ import { PublicKeyStrategy } from './strategies/public-key.strategy';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         let privateKey: Buffer = Buffer.from('');
+        const directory = configService.get(ENV_SECURITY_RSA_AUTH_PATH);
         try {
-          privateKey = readFileSync(
-            join(process.cwd(), 'keys', 'privateKey.pem'),
-          );
+          privateKey = readFileSync(join(directory, 'privateKey.pem'));
         } catch {}
         return {
           privateKey: {
             key: privateKey,
-            passphrase: configService.get<string>(ENV_SECURITY_SECRET),
+            passphrase: configService.get<string>(ENV_SECURITY_RSA_PASSPHRASE),
           },
           signOptions: {
-            expiresIn: configService.get<string>(ENV_SECURITY_EXPIRE),
+            expiresIn: configService.get<string>(ENV_SECURITY_JWT_EXPIRE),
             issuer: 'shared-socket-service',
             algorithm: 'RS256',
           },

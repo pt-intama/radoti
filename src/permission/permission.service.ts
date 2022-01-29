@@ -14,23 +14,32 @@ import * as moment from 'moment';
 import { join, parse } from 'path';
 import { from, map, Observable, tap } from 'rxjs';
 import { isPathAvailable } from 'src/common/utils';
-import { ENV_SECURITY_SECRET } from 'src/common/constants';
+import {
+  ENV_SECURITY_RSA_AUTH_PATH,
+  ENV_SECURITY_RSA_BITLENGTH,
+  ENV_SECURITY_RSA_PASSPHRASE,
+} from 'src/common/constants';
+import { BitLength } from '@ryanbekhen/cryptkhen/lib/types';
 
 @Injectable()
 export class PermissionService {
   private logger: Logger = new Logger(PermissionService.name);
   private rsa: RSAEncryption;
-  private secret: string;
+  private passphrase: string;
+  private bitLength: BitLength;
   constructor(private configService: ConfigService) {
-    this.secret = this.configService.get<string>(ENV_SECURITY_SECRET);
+    this.passphrase = this.configService.get(ENV_SECURITY_RSA_PASSPHRASE);
+    this.bitLength = parseInt(
+      this.configService.get(ENV_SECURITY_RSA_BITLENGTH),
+    ) as BitLength;
     this.rsa = new RSAEncryption();
   }
 
   createPermissionKey(withCreateFile?: boolean) {
     const pemSource = from(
       this.rsa.generateKey({
-        bitLength: 2048,
-        passphrase: this.secret,
+        bitLength: this.bitLength,
+        passphrase: this.passphrase,
       }),
     ).pipe(
       map((value) => {
@@ -46,8 +55,9 @@ export class PermissionService {
       }),
       tap((val) => {
         if (withCreateFile) {
+          const directory = this.configService.get(ENV_SECURITY_RSA_AUTH_PATH);
           for (let i = 0; i < val.length; i++) {
-            const path = join(process.cwd(), 'keys', `${val[i].type}.pem`);
+            const path = join(directory, `${val[i].type}.pem`);
             if (!isPathAvailable(path, true)) {
               this.logger.log(`Permission ${val[i].type} has been generated`);
             } else {
@@ -76,12 +86,13 @@ export class PermissionService {
       (subsribe) => {
         const identity = Buffer.from(randomUUID()).toString('hex');
         const signature = Buffer.from(
-          this.rsa.signature(privateKey, identity, this.secret),
+          this.rsa.signature(privateKey, identity, this.passphrase),
           'base64',
         );
 
         if (withCreateFile) {
-          const path = join(process.cwd(), 'keys', 'credentials');
+          const directory = this.configService.get(ENV_SECURITY_RSA_AUTH_PATH);
+          const path = join(directory, 'credentials');
           if (!existsSync(path)) {
             mkdirSync(parse(path).dir, { recursive: true });
           }
@@ -110,7 +121,8 @@ export class PermissionService {
       identity: string;
       signature: string;
     }>((subscribe) => {
-      const path = join(process.cwd(), 'keys', 'credentials-claim');
+      const directory = this.configService.get(ENV_SECURITY_RSA_AUTH_PATH);
+      const path = join(directory, 'credentials-claim');
       if (existsSync(path)) {
         const credentials = readFileSync(path, 'utf-8');
         unlinkSync(path);
@@ -124,7 +136,8 @@ export class PermissionService {
 
   getVerificationKey() {
     return new Observable<Buffer>((subscribe) => {
-      const key = readFileSync(join(process.cwd(), 'keys', 'publicKey.pem'));
+      const directory = this.configService.get(ENV_SECURITY_RSA_AUTH_PATH);
+      const key = readFileSync(join(directory, 'publicKey.pem'));
       subscribe.next(key);
       subscribe.complete();
     });

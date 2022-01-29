@@ -3,13 +3,17 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
+import { ENV_SECURITY_RSA_AUTH_PATH } from 'src/common/constants';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     let publicKey = Buffer.from('');
+    const configService: ConfigService = new ConfigService();
+    const directory = configService.get(ENV_SECURITY_RSA_AUTH_PATH);
     try {
-      publicKey = readFileSync(join(process.cwd(), 'keys', 'publicKey.pem'));
+      publicKey = readFileSync(join(directory, 'publicKey.pem'));
     } catch {}
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

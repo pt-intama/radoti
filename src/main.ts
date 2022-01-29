@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 import * as compression from 'compression';
 import { AppService } from './app.service';
 import { ConfigService } from '@nestjs/config';
-import { ENV_PORT } from './common/constants';
+import { ENV_SERVER_PORT } from './common/constants';
 import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,7 +28,7 @@ async function bootstrap() {
   app.get(AppService).onShutdownListener(() => app.close());
 
   // listen in port 3000
-  const port = app.get(ConfigService).get<string>(ENV_PORT);
+  const port = app.get(ConfigService).get(ENV_SERVER_PORT);
   await app.listen(port ? port : 3000, () =>
     logger.log(`Running on port ${port}`),
   );

@@ -8,13 +8,13 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "clean": "rimraf dist keys storage prisma/migrations prisma/dev.db prisma/dev.db-journal",
-    "setup": "yarn && yarn clean && yarn build && yarn db:migrate:init",
+    "clean": "rimraf dist db storage keys migrations",
+    "setup": "prisma migrate dev --name init",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "node dist/main",
-    "start:dev": "nest start",
-    "start:watch": "nest start --watch",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -48,7 +48,6 @@
     "rxjs": "^7.2.0"
   },
   "devDependencies": {
-    "@compodoc/compodoc": "^1.1.18",
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
@@ -94,5 +93,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "prisma": {
+    "schema": "./schema.prisma"
   }
 }
