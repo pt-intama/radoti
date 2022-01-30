@@ -4,7 +4,6 @@ import {
   Controller,
   ForbiddenException,
   Get,
-  Header,
   Headers,
   Param,
   Patch,
