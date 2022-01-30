@@ -4,10 +4,12 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  Header,
   Headers,
   Param,
   Patch,
   Post,
+  Query,
   Res,
   StreamableFile,
   UploadedFile,
@@ -20,8 +22,7 @@ import { createReadStream } from 'fs';
 import { join } from 'path/posix';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { UploadFileResponseDto } from './dto/upload-file-response.dto';
-import { UploadFileDto } from './dto/upload-file.dto';
+import { ReadAllFileDto, UploadFileDto, UploadFileResponseDto } from './dto';
 import { StorageService } from './storage.service';
 import { extension } from 'mime-types';
 
@@ -61,6 +62,32 @@ export class StorageController {
     return this.storageService
       .rename(id, name)
       .pipe(catchError(() => throwError(() => new BadRequestException())));
+  }
+
+  @Get('browser')
+  getBrowsePublic(@Query() readAllFileDto: ReadAllFileDto) {
+    if (isNaN(+readAllFileDto.page) || isNaN(+readAllFileDto.itemPerPage)) {
+      throw new BadRequestException();
+    }
+    return this.storageService.readAllFile(
+      {
+        page: +readAllFileDto.page,
+        itemPerPage: +readAllFileDto.itemPerPage,
+      },
+      true,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('browser/private')
+  getBrowsePrivate(@Query() readAllFileDto: ReadAllFileDto) {
+    if (isNaN(+readAllFileDto.page) || isNaN(+readAllFileDto.itemPerPage)) {
+      throw new BadRequestException();
+    }
+    return this.storageService.readAllFile({
+      page: +readAllFileDto.page,
+      itemPerPage: +readAllFileDto.itemPerPage,
+    });
   }
 
   @Get('file/:id')

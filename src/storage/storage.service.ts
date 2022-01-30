@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { parse } from 'path';
 import { from, map } from 'rxjs';
 import { PrismaService } from 'src/prisma.service';
+import { ReadAllFileDto } from './dto';
 
 @Injectable()
 export class StorageService {
@@ -43,6 +44,25 @@ export class StorageService {
       }),
     );
 
+    return source;
+  }
+
+  readAllFile(readAllFileDto: ReadAllFileDto, isPublic?: boolean) {
+    const source = from(
+      this.prisma.storage.findMany({
+        skip:
+          readAllFileDto.page - 1 < 0
+            ? 0
+            : (readAllFileDto.page - 1) * readAllFileDto.itemPerPage,
+        take: readAllFileDto.itemPerPage,
+        where: {
+          isPublic: isPublic ? isPublic : false,
+        },
+        orderBy: {
+          updatedAt: 'asc',
+        },
+      }),
+    );
     return source;
   }
 
