@@ -3,7 +3,7 @@
 /node_modules
 /.radoti-auth
 /storage
-/migration
+/migrations
 /db
 
 # Logs

@@ -8,7 +8,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "clean": "rimraf dist db storage keys migrations",
+    "clean": "rimraf dist db storage .radoti-auth migrations",
     "setup": "prisma migrate dev --name init",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
