@@ -6,7 +6,6 @@ jobs:
   build:
     runs-on: [self-hosted]
     steps:
-    - uses: ./
     - name: Build image
       run: |
         docker build -t radoti .
