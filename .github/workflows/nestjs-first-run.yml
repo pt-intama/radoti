@@ -1,0 +1,22 @@
+name: NestJS Test First runninng
+on:
+  push:
+    branches: [dev]
+jobs:
+  build:
+    runs-on: [self-hosted]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          yarn
+      - name: Setup
+        run: |
+          yarn setup
+      - name: Build
+        run: |
+          yarn build
+      - name: Generate keys
+        run: |
+          node dist/main.js

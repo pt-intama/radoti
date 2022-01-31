@@ -1,5 +1,7 @@
 # RadotiJS
 
+[![Docker Build And Publish](https://github.com/pt-intama/radoti/actions/workflows/docker-image.yml/badge.svg?branch=master)](https://github.com/pt-intama/radoti/actions/workflows/docker-image.yml)
+
 RadotiJS is an application built on NestJs for storing files as a central file storage on microservices architecture.
 
 ## Getting started
