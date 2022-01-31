@@ -8,7 +8,7 @@ jobs:
     steps:
     - name: Build image
       run: |
-        docker build -t radoti .
+        docker build -t radoti:latest .
     - name: Running container
       run: |
         docker run --name radoti radoti:latest
