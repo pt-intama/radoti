@@ -16,6 +16,6 @@ ENV SECURITY_RSA_PASSPHRASE your-passphrase
 
 VOLUME /usr/src/app/.radoti-auth /usr/src/app/storage /usr/src/app/migrations /usr/src/app/db
 
-EXPOSE 8000
+EXPOSE 8800
 
 CMD ["node", "dist/main"]
