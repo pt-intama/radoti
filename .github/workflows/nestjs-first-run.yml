@@ -17,6 +17,9 @@ jobs:
       - name: Build
         run: |
           yarn build
-      - name: Generate keys
+      - name: Generate keys and print keys
         run: |
           yarn start
+          cat .radoti-auth/publicKey.pem
+          cat .radoti-auth/privateKey.pem
+          cat .radoti-auth/credentials-claim
