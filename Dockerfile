@@ -9,8 +9,6 @@ WORKDIR /usr/src/ap
 COPY . .
 RUN yarn install --production=true --ignore-platform
 
-FROM radoti
-
 RUN yarn prisma generate
 RUN yarn prisma migrate dev --name init
 RUN yarn nest build
