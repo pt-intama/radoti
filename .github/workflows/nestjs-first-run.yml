@@ -1,4 +1,4 @@
-name: NestJS Test First runninng
+name: NestJS Setup
 on:
   push:
     branches: [dev]
@@ -19,4 +19,4 @@ jobs:
           yarn build
       - name: Generate keys
         run: |
-          node dist/main.js
+          yarn start
