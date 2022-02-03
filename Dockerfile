@@ -10,6 +10,7 @@ RUN yarn setup
 RUN yarn add @prisma/client
 RUN yarn build
 
+ENV SERVER_MODE development
 ENV SECURITY_JWT_ISSUER Radoti Server
 ENV SECURITY_JWT_EXPIRE 15m
 ENV SECURITY_RSA_BITLENGTH 2048

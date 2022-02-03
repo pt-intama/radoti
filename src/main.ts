@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 import * as compression from 'compression';
 import { AppService } from './app.service';
 import { ConfigService } from '@nestjs/config';
-import { ENV_SERVER_PORT } from './common/constants';
+import { ENV_SERVER_MODE, ENV_SERVER_PORT } from './common/constants';
 import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +15,8 @@ async function bootstrap() {
   });
 
   // helmet
-  app.use(helmet());
+  const serverMode = app.get(ConfigService).get(ENV_SERVER_MODE);
+  if (serverMode === 'production') app.use(helmet());
 
   // compression
   app.use(compression());
