@@ -14,9 +14,17 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
-  // helmet
+  // helmet & cors
   const serverMode = app.get(ConfigService).get(ENV_SERVER_MODE);
-  if (serverMode === 'production') app.use(helmet());
+  if (serverMode === 'production') {
+    app.use(helmet());
+    app.enableCors();
+  } else {
+    app.enableCors({
+      origin: '*',
+      credentials: true,
+    });
+  }
 
   // compression
   app.use(compression());
