@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { parse } from 'path';
-import { from, map } from 'rxjs';
+import { from, map, mergeMap } from 'rxjs';
 import { PrismaService } from 'src/prisma.service';
 import { ReadAllFileDto } from './dto';
 
@@ -39,7 +39,7 @@ export class StorageService {
       this.prisma.storage.findFirst({
         where: {
           id,
-          isPublic: isPublic ? isPublic : false,
+          isPublic,
         },
       }),
     );
@@ -48,22 +48,49 @@ export class StorageService {
   }
 
   readAllFile(readAllFileDto: ReadAllFileDto, isPublic?: boolean) {
+    const page =
+      readAllFileDto.page - 1 < 0
+        ? 0
+        : (readAllFileDto.page - 1) * readAllFileDto.itemPerPage;
+    const itemPerPage = readAllFileDto.itemPerPage;
+    const sourceCountItem = from(
+      this.prisma.storage.count({
+        where: {
+          isPublic,
+        },
+      }),
+    );
     const source = from(
       this.prisma.storage.findMany({
-        skip:
-          readAllFileDto.page - 1 < 0
-            ? 0
-            : (readAllFileDto.page - 1) * readAllFileDto.itemPerPage,
-        take: readAllFileDto.itemPerPage,
+        skip: page,
+        take: itemPerPage,
         where: {
-          isPublic: isPublic ? isPublic : false,
+          isPublic,
         },
         orderBy: {
           updatedAt: 'asc',
         },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          size: true,
+          isPublic: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       }),
     );
-    return source;
+    return source.pipe(
+      mergeMap((files) =>
+        sourceCountItem.pipe(
+          map((count) => ({
+            totalPage: Math.round(count / itemPerPage),
+            files,
+          })),
+        ),
+      ),
+    );
   }
 
   rename(id: string, name: string) {
@@ -72,8 +99,28 @@ export class StorageService {
         where: {
           id,
         },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          size: true,
+          isPublic: true,
+          createdAt: true,
+          updatedAt: true,
+        },
         data: {
           name,
+        },
+      }),
+    );
+    return source;
+  }
+
+  remove(id: string) {
+    const source = from(
+      this.prisma.storage.delete({
+        where: {
+          id,
         },
       }),
     );

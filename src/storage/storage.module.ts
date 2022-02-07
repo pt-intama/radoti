@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { diskStorage } from 'multer';
 import { existsSync, mkdirSync } from 'fs';
 import { ENV_STORAGE_PATH } from 'src/common/constants';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { ENV_STORAGE_PATH } from 'src/common/constants';
 
         const storage = diskStorage({
           destination: (_, file, cb) => {
-            const uploadPath = `${dest}/${file.mimetype}`;
+            const uploadPath = join(dest, file.mimetype);
             if (!existsSync(uploadPath))
               mkdirSync(uploadPath, { recursive: true });
             cb(null, uploadPath);

@@ -61,11 +61,7 @@ export class PermissionService {
             if (!isPathAvailable(path, true)) {
               this.logger.log(`Permission ${val[i].type} has been generated`);
             } else {
-              const newDirectory = join(
-                process.cwd(),
-                'keys',
-                moment().format('YYYYMMDD'),
-              );
+              const newDirectory = join(directory, moment().format('YYYYMMDD'));
               mkdirSync(newDirectory, {
                 recursive: true,
               });
