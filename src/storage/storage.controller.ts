@@ -2,9 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
-  ForbiddenException,
+  Delete,
   Get,
   Headers,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -17,20 +18,25 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
-import { createReadStream } from 'fs';
+import { createReadStream, existsSync, unlinkSync } from 'fs';
 import { join } from 'path/posix';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ReadAllFileDto, UploadFileDto, UploadFileResponseDto } from './dto';
 import { StorageService } from './storage.service';
 import { extension } from 'mime-types';
+import { ConfigService } from '@nestjs/config';
+import { ENV_STORAGE_PATH } from 'src/common/constants';
 
 @Controller({
   path: 'storage',
   version: '1.0',
 })
 export class StorageController {
-  constructor(private storageService: StorageService) {}
+  constructor(
+    private configService: ConfigService,
+    private storageService: StorageService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post('upload')
@@ -94,7 +100,7 @@ export class StorageController {
     const source = this.storageService.readFileById(id, true).pipe(
       map((file) => {
         if (!file) {
-          throw new ForbiddenException();
+          throw new NotFoundException();
         }
 
         const fileStream = createReadStream(
@@ -121,6 +127,10 @@ export class StorageController {
   ) {
     const source = this.storageService.readFileById(id).pipe(
       map((file) => {
+        if (!file) {
+          throw new NotFoundException();
+        }
+
         const fileStream = createReadStream(
           join(process.cwd(), file.path, file.id),
         );
@@ -133,5 +143,32 @@ export class StorageController {
       }),
     );
     return source;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('file/:id')
+  removeFile(@Param('id') id: string) {
+    return this.storageService.remove(id).pipe(
+      map((file) => {
+        if (!file) {
+          throw new NotFoundException();
+        }
+
+        const storagePath = this.configService.get<string>(ENV_STORAGE_PATH);
+        let dest = './storage';
+        if (storagePath) {
+          dest = storagePath;
+        }
+
+        const path = join(dest, file.type, file.id);
+
+        if (existsSync(path)) {
+          unlinkSync(path);
+        }
+
+        return file;
+      }),
+      catchError(() => throwError(() => new NotFoundException())),
+    );
   }
 }

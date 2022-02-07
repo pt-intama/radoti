@@ -18,6 +18,8 @@ $ yarn setup
 $ yarn start
 ```
 
+[![Run in Insomnia}](https://insomnia.rest/images/run.svg)](https://insomnia.rest/run/?label=RadotiJS&uri=https%3A%2F%2Fraw.githubusercontent.com%2Fpt-intama%2Fradoti%2Fmaster%2FRadotiJSInsomniaV4.json)
+
 ## License
 
 RadotiJS is [BSD 3-Clause](LICENSE).
