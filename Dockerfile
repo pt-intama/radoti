@@ -1,14 +1,27 @@
 FROM node:16.13-alpine
 
+# Create app directory
 WORKDIR /usr/src/app
-COPY package*.json ./
+
+# A wildcard is used to ensure both package.json AND yarn.lock are copied
+COPY package.json ./
+COPY yarn.lock ./
+COPY prisma ./prisma/
+
+# Install app dependencies
 RUN yarn
 
 COPY . .
 
 RUN yarn setup
-RUN yarn add @prisma/client
-RUN yarn build
+
+FROM node:16.13-alpine
+
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/package.json ./
+COPY --from=builder /usr/src/app/yarn.lock ./
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/prisma ./prisma
 
 ENV SERVER_MODE development
 ENV SECURITY_JWT_ISSUER Radoti Server
