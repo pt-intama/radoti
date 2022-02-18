@@ -1,4 +1,4 @@
-name: NestJS Setup
+name: Docker Image Local Server
 on:
   push:
     branches: [dev]
